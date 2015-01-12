@@ -1,27 +1,21 @@
 #!/usr/bin/python
 
-from sys import stdin
+from utils import line, iline
+from itertools import combinations
 
-def line(): return stdin.readline().strip().split()
-	
-def iline(): return map( int, line() )
-
-T, = iline()
-
-for i in xrange(1,T+1):
-
+def test():
 	total = iline()
 	N, = iline()
 	meals = [ iline() for j in xrange(N) ]
 	
-	def ok():
-		for S in xrange(2**N):
-			B = ('0'*N+bin(S)[2:])[-N:]
+	def solve():
+		Q = ( map( sum, zip(*m) ) == total for n in xrange(0, N+1) for m in combinations(meals, n) )
+		print 'yes' if any(Q) else 'no'
 		
-			answer = [ sum( v[j] for v,b in zip(meals,B) if b == '1') for j in xrange(3) ]
-			if answer == total:
-				return True
-				
-		return False
-
-	print 'Case #%d: %s' % (i, 'yes' if ok() else 'no')
+	return solve
+	
+if __name__ == '__main__':
+	T, = iline()
+	for i in xrange(1, T+1):
+		print 'Case #%d:' % i,
+		test()()

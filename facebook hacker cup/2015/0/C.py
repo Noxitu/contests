@@ -2,19 +2,14 @@
 
 from sys import stdin
 from collections import deque
-
-def line(): return stdin.readline().strip().split()
-	
-def iline(): return map( int, line() )
-
-T, = iline()
+from utils import line, iline
 
 def next_dir(dx,dy):
 	return (-dy,dx)
 	
 DIRS = {'>' : (1,0), 'v': (0,1), '<': (-1,0), '^':(0,-1) }
 
-for i in xrange(1,T+1):
+def test():
 	H, W = iline()
 	M = [['#']*(W+2)]+[ list('#'+line()[0]+'#') for j in xrange(H) ]+[['#']*(W+2)]
 	
@@ -76,10 +71,10 @@ for i in xrange(1,T+1):
 		curr_layer = next_layer
 		next_layer = []
 					
-#		print '\n'.join( ''.join( v for v in L ) for L in MM[dist%4] )
-#		print
 
 	try:
-		print 'Case #%d: %d' % (i, answer)
+		print '%d' %answer
 	except:
-		print 'Case #%d: impossible' % (i)
+		print 'impossible'
+		
+		
