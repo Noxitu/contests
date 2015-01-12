@@ -47,7 +47,7 @@ def simple_solve(input_file, output_file, debug=False, **kwargs):
 				
 				
 				
-def complex_solve(input_file, output_file, debug=False, processes=4):
+def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
 	start_time = time.time()	
 	solvers = []
 	
@@ -64,11 +64,7 @@ def complex_solve(input_file, output_file, debug=False, processes=4):
 					print >>sys.stderr, '\tCase %d solved [%dms].' % (i, 1000*(time.time()-start_time))
 					
 	if len(solvers) != T:
-		if len(solvers) != 0:
-			raise Exception('weird stuff')
-			
-		return
-		
+		raise Exception('cant solve paraller')
 		
 	fds = []
 	semaphore = Semaphore(processes)
@@ -129,9 +125,13 @@ if __name__ == '__main__':
 	parser.add_argument('-o', '--output', help='use stdout as output', action='store_true')
 	parser.add_argument('-d', '--debug', help='display debug information (eg. solved cases)', action='store_true')
 	parser.add_argument('-r', '--round', help='round directory path. Defaults to last used stored in "codejam.round"')
+	parser.add_argument('-q', '--quiet', help='hide all stderr text', action='store_true')
 	parser.add_argument('task', help='task id')
 
 	args = parser.parse_args()
+	
+	if args.quiet:
+		sys.stderr = open(os.devnull, 'w')
 	
 	directory = args.round
 	
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 		print >>sys.stderr, 'Solving %s...' % ('STDIN' if args.std else '"%s"' % problem[0])
 		with sys.stdin if args.std else open(directory+problem[0]) as input_file:
 			with sys.stdout if args.std or args.output else open(directory+problem[1], 'w') as output_file:
-				solve( input_file, output_file, debug=args.debug, processes=args.processes )
+				solve( input_file, output_file, debug=args.debug, processes=args.processes, delay_case=args.std or args.output )
 			
 
 			
