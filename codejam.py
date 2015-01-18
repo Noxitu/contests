@@ -29,7 +29,7 @@ class stdoutSwapper:
 	def __exit__(self, type, value, traceback):
 		sys.stdout = self.old_stdout
 		
-def simple_solve(input_file, output_file, debug=False, **kwargs):
+def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs):
 	start_time = time.time()
 	
 	with stdoutSwapper(output_file):
@@ -37,9 +37,15 @@ def simple_solve(input_file, output_file, debug=False, **kwargs):
 		T, = iline()
 		
 		for i in xrange(1, T+1):
-			print 'Case #%d:' % i,
+			if not delayCase:
+				print 'Case #%d:' % i,
+				
 			solve = task.test()
+			
 			if hasattr(solve, '__call__'):
+				if delayCase:
+					print 'Case #%d:' % i,
+					
 				solve()
 				
 			if debug:
@@ -59,9 +65,6 @@ def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
 			solve = task.test()
 			if hasattr(solve, '__call__'):
 				solvers.append( (i, solve) )
-			else:
-				if debug:
-					print >>sys.stderr, '\tCase %d solved [%dms].' % (i, 1000*(time.time()-start_time))
 					
 	if len(solvers) != T:
 		raise Exception('cant solve paraller')
@@ -109,12 +112,19 @@ def findInputFiles(path, taskid):
 				
 	return examples, problem
 	
-def file_diff(one, two):
-	one = one.read().split()
-	two = two.read().split()
+def file_contents(f):
+	return [ l.split() for l in f.read().split('\n') ]
 	
+def are_same(one, two):
 	return one == two
-			
+	
+def color_diff(own, expected):
+	for y, L in enumerate(own):
+		for x, W in enumerate(L):
+			if y >= len(expected) or x >= len(expected[y]):
+				own[y][x] = bcolors.FAIL + W + bcolors.ENDC
+			elif W != expected[y][x]:
+				own[y][x] = bcolors.FAIL + W + bcolors.OKGREEN + ' (' + expected[y][x] + ')' + bcolors.ENDC
 
 if __name__ == '__main__':
 
@@ -167,8 +177,13 @@ if __name__ == '__main__':
 			output_file.seek(0)
 			try:
 				with open(directory+O) as expected_file:
-					if not file_diff(output_file, expected_file):
+					output_content = file_contents(output_file)
+					expected_content = file_contents(expected_file)
+					
+					if not are_same(output_content, expected_content):
 						print >>sys.stderr, bcolors.FAIL, 'Example "%s" has incorrect output!' % I, bcolors.ENDC
+						color_diff(output_content, expected_content)
+						print >>sys.stderr, '\n'.join( ' '.join( l ) for l in output_content )
 			except IOError:
 				print >>sys.stderr, bcolors.WARNING, 'Couldnt verify example "%s" output!' % I, bcolors.ENDC
 				
@@ -176,7 +191,7 @@ if __name__ == '__main__':
 		print >>sys.stderr, 'Solving %s...' % ('STDIN' if args.std else '"%s"' % problem[0])
 		with sys.stdin if args.std else open(directory+problem[0]) as input_file:
 			with sys.stdout if args.std or args.output else open(directory+problem[1], 'w') as output_file:
-				solve( input_file, output_file, debug=args.debug, processes=args.processes, delay_case=args.std or args.output )
+				solve( input_file, output_file, debug=args.debug, processes=args.processes, delayCase=args.std or args.output )
 			
 
 			
