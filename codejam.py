@@ -2,6 +2,8 @@
 
 import argparse, imp, sys, os, time, re
 
+import Queue, multiprocessing
+from cStringIO import StringIO
 from shutil import copyfile
 from multiprocessing import Semaphore
 from tempfile import TemporaryFile
@@ -30,31 +32,33 @@ class stdoutSwapper:
 		sys.stdout = self.old_stdout
 		
 def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs):
-	start_time = time.time()
+	solve_start = time.time()
 	
 	with stdoutSwapper(output_file):
 		setLineInput(input_file)
 		T, = iline()
 		
-		for i in xrange(1, T+1):
+		if debug:
+			print >>sys.stderr, '\tFound $B%d$$ cases.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (T)
+		
+		for id in xrange(1, T+1):
 			if not delayCase:
-				print 'Case #%d:' % i,
+				print 'Case #%d:' % id,
 				
 			solve = task.test()
 			
 			if hasattr(solve, '__call__'):
 				if delayCase:
-					print 'Case #%d:' % i,
+					print 'Case #%d:' % id,
 					
 				solve()
 				
-			if debug:
-				print >>sys.stderr, '\tCase %d solved [%dms].' % (i, 1000*(time.time()-start_time))
-				
+				if debug:
+					print >>sys.stderr, '\tCase $B#%d$$ solved [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, 1000*(time.time()-solve_start), T-id)
 				
 				
 def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
-	start_time = time.time()	
+	solve_start = time.time()	
 	solvers = []
 	
 	setLineInput(input_file)
@@ -64,35 +68,50 @@ def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
 		with stdoutSwapper(output_file):
 			solve = task.test()
 			if hasattr(solve, '__call__'):
-				solvers.append( (i, solve) )
+				solvers.append(( i, solve ))
 					
 	if len(solvers) != T:
 		raise Exception('cant solve paraller')
 		
+	if debug:
+		print >>sys.stderr, '\tInput loaded [$B%dms$$]. Found $B%d$$ cases.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (1000*(time.time()-solve_start), T)
+		
 	fds = []
-	semaphore = Semaphore(processes)
-	for i, solve in solvers:
-		pid, fd = os.forkpty()
+	queue_in = multiprocessing.Queue()
+	queue_out = multiprocessing.Queue()
+	output_data = [ None for t in solvers ]
+	
+	for i in xrange(T):
+		queue_in.put(i)
+		
+	for p in xrange(processes):
+		pid = os.fork()
 		
 		if pid == 0:
-			with semaphore:
-				print 'Case #%d:' % i,
-				solve()
-					
-			sys.exit(0)
-			
-		fds.append(( i, fd ))
-		
-	for i, fd in fds:
-		while True:
-			data = os.read(fd, 1024)
-			if len(data) == 0:
-				break
-			output_file.write(data)
-			
+			while True:
+				try:
+					i = queue_in.get(False)
+					id, solve = solvers[i]
+					output_data = StringIO()
+					with stdoutSwapper(output_data):
+						print 'Case #%d:' % id,
+						solve()
+						
+					queue_out.put(( i, output_data.getvalue(), p ))
+						
+				except Queue.Empty:
+					sys.exit(0)
+	
+	for j in xrange(T):
+		i, data, p = queue_out.get()
+		id = solvers[i][0]
+		output_data[i] = data
 		if debug:
-			print >>sys.stderr, '\tCase %d solved [%dms].' % (i, 1000*(time.time()-start_time))
-				
+			print >>sys.stderr, '\tCase $B#%d$$ solved by $B@%d$$ [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, p+1, 1000*(time.time()-solve_start), T-j-1)
+		
+	for data in output_data:
+		output_file.write(data)
+			
 def findInputFiles(path, taskid):
 	files = os.listdir(path)
 	
@@ -164,6 +183,7 @@ if __name__ == '__main__':
 		copyfile('task.py.tpl', source_path )
 		sys.exit(0)
 	
+	print >>sys.stderr, 'Loading solution module...'
 	task = imp.load_source( 'task', source_path )
 	solve = complex_solve if args.processes > 1 else simple_solve
 	
