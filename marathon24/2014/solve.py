@@ -109,8 +109,7 @@ if __name__ == '__main__':
 	parser.add_argument('-p', '--processes', type=int, help='number of executed processes', default=multiprocessing.cpu_count() )
 	parser.add_argument('-c', '--config', help='config file', default='{id}.conf' )
 	parser.add_argument('-s', '--state', help='state file', default='{id}.state' )
-	parser.add_argument('-b', '--binary', help='binary task (only for worker pool)', default=False, action='store_true' )
-	parser.add_argument('--pool', help='use worker pool', default=False, action='store_true' )
+	parser.add_argument('-b', '--binary', help='binary task', default=False, action='store_true' )
 	
 	args = parser.parse_args()
 	
@@ -137,10 +136,9 @@ if __name__ == '__main__':
 	print >>sys.stderr, 'Solving %d tests in %d datasets...' % (len(datas), len(datasets))
 
 	
-	if args.pool:
-		if args.binary:
-			prepare_state_file_binary( datasets )
-			solve_data = solve_data_binary
+	if args.binary:
+		prepare_state_file_binary( datasets )
+		solve_data = solve_data_binary
 			
 		answers = pool.map( solve_data, datas )
 			
