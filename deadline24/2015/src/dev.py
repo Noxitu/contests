@@ -5,7 +5,6 @@ from utils import *
 
 names = []
 shapes = {}
-joins = {}
 
 with open('dev.tiles') as f, stdinSwapper(f):
 	N, = iline()
@@ -29,24 +28,6 @@ with open('dev.tiles') as f, stdinSwapper(f):
 		shapes[ (name, 0) ] = shape
 		for r in xrange(1,4):
 			shapes[ (name, r) ] = [ (-y,x) for x,y in shapes[ (name,r-1) ] ]
-			
-"""def can_join(A,B,dx,dy):
-	ok = False
-	for x1, y1 in A:
-		for x2, y2 in B:
-			if (x1,y1) == (x2+dx,y2+dx):
-				return False
-			if abs(x1-dx-x2)+abs(y1-dy-y2) == 1:
-				ok = True
-	return ok
-	
-for id1, A in shapes.items():
-	_j = joins[ id1 ] = set()
-	for id2, B in shapes.items():
-		for dx in xrange(-11, 12):
-			for dy in xrange(-11, 12):
-				if can_join(A,B,dx,dy):
-					_j.add((id2, (dx, dy)))"""
 					
 				
 def load_dataset():	
@@ -92,8 +73,8 @@ def solve((H,W,D)):
 	score = 0
 	answer = []
 	possible = ( (id, (x,y)) for id in shapes for x in xrange(W) for y in xrange(H) )
+	#possible = ( (id, pos) for id, pos in possible if id == ('f',0) )
 	possible = [ (tile, count(tile, 'X'), 0) for tile in possible if count(tile, '#') == 0 ]
-	
 	
 	try:
 		while True:
