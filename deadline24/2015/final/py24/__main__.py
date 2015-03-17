@@ -17,7 +17,7 @@ Options:
   --login=<login>        Login used after connecting.   
   --password=<password>  Login used after connection.
   --run=<module>         Module that will be run. Must contain run() function.
-  --mode=(d24|m24)       Select server compability mode. [Default: d24]
+  --mode=(d24|m24)       Server compability mode. [Default: d24]
   
 All options may be set in config file. Options passed by command line take precedence.
 You MAY pass custom options.

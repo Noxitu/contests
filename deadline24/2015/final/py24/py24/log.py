@@ -26,6 +26,7 @@ def log(msg):
     format = strftime("[%H:%M:%S]\t%%s\n")
     for line in str(msg).split('\n'):
         _log_file.write(format % line)
+    _log_file.flush()
         
 def log_exc():
     log( traceback.format_exc() )
