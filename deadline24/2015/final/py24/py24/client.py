@@ -1,28 +1,33 @@
 # -*- coding: utf-8
 
 import socket
-from itertools import izip, chain, repeat
+from itertools import chain, repeat
+from functools import wraps
 
-import log
-from config import config
-from failed import Failed
+import py24.log as log
+from .config import config
+from .failed import Failed
 
 def Action(callback):
+    """Decorated methods send their name and non-keyword arguments."""
+    @wraps(callback)
     def call(self, *args, **kwargs):
         sep = kwargs.get('sep', ' ')
-        argss = map(str, args)
-        send = [callback.func_name] + argss
+        send = [callback.func_name] + map(str, args)
         self.send( sep.join(send))
         self.checkstatus()
         return callback(self, *args, **kwargs)
     return call
 
 class Client:
+    """Auto-connects to server specified in config. Allows for easy sending and receiving of data."""
     def send(self, what):
+        """Sends line of text."""
         log.net_out(what)
         return self._socket.sendall(what +'\n')
 
     def getline(self):
+        """Receives line of text."""
         while self._buffer.find('\n') == -1:
             self._buffer +=  self._socket.recv(2048)
         out, trash, self._buffer = self._buffer.partition('\n')
@@ -30,15 +35,19 @@ class Client:
         return out
     
     def line(self, *args):
-        return [ type(value) for value, type in izip( self.getline.split(), chain( args, repeat(str) ) ) ]
+        """Receives and splits line of text. Converts i-th word using i-th argument."""
+        return [ type(value) for value, type in zip( self.getline.split(), chain( args, repeat(str) ) ) ]
     
     def iline(self):
+        """Receives line of integers."""
         return map(int, self.getline().split() )
         
     def fline(self):
+        """Receives line of floats."""
         return map(float, self.getline().split() )
 
     def checkstatus(self):
+        """Receives OK or throws exception if FAILED"""
         ret = self.getline().split(' ')
         if ret[0] == self.FAILED_RESPONSE:
             raise Failed(int(ret[1]))( ' '.join(ret[1:]))
@@ -77,6 +86,9 @@ class Client:
         self.checkstatus()
 
     def __getattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError('Attribute %s not found' % name)
+        
         def defaultMethod(*args, **kwargs):
             sep = kwargs.get('sep', ' ')
             args = map(str, args)

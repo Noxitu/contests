@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+"""config variable is dict with loaded configuration."""
 
 import re
 
@@ -16,6 +17,7 @@ def _try_bool(value):
         raise ValueError
     
 def apply(key, value):
+    """Applies configuration auto-casting its type"""
     for type in [_try_bool, int, str]:
         try:
             config[key] = type(value)
@@ -25,6 +27,7 @@ def apply(key, value):
 
 _regex = re.compile( '\s*(\[([^\]]+)\])?([^:]+):(.+)' )
 def load(path, id):
+    """Loads config file from path and filters it with matching ids"""
     tags = set(id.split('-'))
     with open(path) as f:
         for line in f.readlines():

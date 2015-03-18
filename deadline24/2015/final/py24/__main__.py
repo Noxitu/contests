@@ -46,13 +46,13 @@ for arg in sys.argv[1:]:
         value = True
     
     if key in { 'h', 'help' } or key in command_line:
-        print __doc__
+        print(__doc__)
         sys.exit(0)
         
     command_line[key] = value
     
 if 'id' not in command_line:
-    print __doc__
+    print(__doc__)
     sys.exit(0)
     
 py24.config.load( command_line.get( 'config-path', './config.txt'), command_line['id'] )

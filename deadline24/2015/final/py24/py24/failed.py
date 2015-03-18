@@ -2,12 +2,13 @@
 
 _failedexceptions = {}
 
-def Failed(c):
-	try:
-		return _failedexceptions[c]
-	except KeyError:
-		class FailedException(Exception):
-			pass
-		f = _failedexceptions[c] = FailedException
-		return f
-		
+def Failed(id):
+    """Returns exception class assigned to id."""
+    try:
+        return _failedexceptions[id]
+    except KeyError:
+        class FailedException(Exception):
+            pass
+        f = _failedexceptions[id] = FailedException
+        return f
+        

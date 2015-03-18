@@ -1,7 +1,7 @@
 # -*- coding: utf-8
 
 import os, sys, importlib
-import log, config, utils
+import py24.log, py24.config, py24.utils
 
 def _run_once( module ):
     try:
@@ -15,6 +15,7 @@ def _run_loop( module ):
         run_once( module )
         
 def initize():
+    """Initizes data path and prepares logging module"""
     data_path = config.config['data-path'].replace(':id', config.config['id'])
         
     try: 
@@ -26,6 +27,7 @@ def initize():
     log.init(data_path)
 
 def run():
+    """Loads module and runs it. Runs it in loop if needed. Runs it in thread if needed."""
     sys.path.append(os.getcwd()+'/src')
     name = config.config['run']
     log.log('Running module: %s' % name )
@@ -33,6 +35,6 @@ def run():
     
     call = _run_loop if config.config['loop'] else _run_once
     if sys.flags.interactive:
-        call = utils.Thread(daemon=True)(call)
+        call = utils.Thread(call, daemon=True)
         
     call( module )
