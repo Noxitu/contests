@@ -7,6 +7,7 @@ import py24.log as log
 
 from time import sleep
 
+@log.calls
 class CTF(Client):
     @Action
     def GET_TIME(self):
@@ -22,11 +23,12 @@ class CTF(Client):
         return self.getiline()
 
 def run():
-    log.status_format('{config}', locals(), globals())
-    game = CTF()
+    #game = CTF()
     
     while True:
         try:
+            log.status_format('{game}\n{config}', locals(), globals())
+            raise Failed(5)('No way!')
             game.WAIT()
         except Failed(9):
             log.status('No current round')

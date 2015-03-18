@@ -7,6 +7,8 @@ from functools import wraps
 import py24.log as log
 from .config import config
 from .failed import Failed
+from .utils import izip
+
 
 def Action(callback):
     """Decorated methods send their name and non-keyword arguments."""
@@ -36,7 +38,7 @@ class Client:
     
     def line(self, *args):
         """Receives and splits line of text. Converts i-th word using i-th argument."""
-        return [ type(value) for value, type in zip( self.getline.split(), chain( args, repeat(str) ) ) ]
+        return [ type(value) for value, type in izip( self.getline.split(), chain( args, repeat(str) ) ) ]
     
     def iline(self):
         """Receives line of integers."""
@@ -99,4 +101,3 @@ class Client:
     def while_waiting(self):
         pass
         
-

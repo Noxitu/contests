@@ -41,8 +41,8 @@ def log_exc():
     log( traceback.format_exc() )
     
     
-def function_call(func):
-    """Logs calls to decorated function every time it is called."""
+def call(func):
+    """Logs calls to decorated function."""
     try:
         msg = 'Calling %s.%s with arguments: %%s %%s' % (func.im_class.__name, func.__name__)
     except:
@@ -53,6 +53,13 @@ def function_call(func):
         log( msg % (args, kwargs))
         return func(*args, **kwargs)
     return call
+    
+def calls(class_obj):
+    """Logs calls to all methods of decorated class."""
+    for key, value in vars(class_obj).items():
+        if callable(value):
+            setattr(class_obj, key, call(value))
+    return class_obj
     
 def status(msg):
     """Overrides current status with message."""
