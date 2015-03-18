@@ -2,7 +2,7 @@
 """Framework for Deadline24 and Marathon24 finals.
 
 Usage:
-  lib [options] ID
+  py24 [options] ID
 
 Arguments:
   ID                     It should contain both task and server id. [Examples: ctf-2, ice-1-testing]
