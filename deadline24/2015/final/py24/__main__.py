@@ -13,11 +13,11 @@ Options:
   --data-path=<path>     Set data directory path. [Default: ./data/:id/]
   --loop                 Reconnect after errors. [Default: False]
   --hostname=<hostname>  Hostname of the server.
-  --port=<port>          Hostname of the server.
+  --port=<port>          Port of the server.
   --login=<login>        Login used after connecting.   
-  --password=<password>  Login used after connection.
+  --password=<password>  Password used after connection.
   --run=<module>         Module that will be run. Must contain run() function.
-  --mode=(d24|m24)       Server compability mode. [Default: d24]
+  --mode=(d24|m24)       Server compability mode.
   
 All options may be set in config file. Options passed by command line take precedence.
 You MAY pass custom options.
@@ -25,7 +25,7 @@ Option arguments MUST be passed using = sign.
 Short options CAN NOT have arguments.
 """
 
-# Nie umiem w docopt-cie zrobić custom parametrów
+# Nie umiem w docopt-cie zrobić parametrów użytkownika
 
 import sys
 import py24

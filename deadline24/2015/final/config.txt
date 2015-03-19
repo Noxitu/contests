@@ -1,6 +1,7 @@
 hostname: localhost
 login: grzesiu
 password: ******
+mode: d24
 [ctf] run: ctf
 [ctf-1-test] run: ctftest
 [ctf-1] port: 24001

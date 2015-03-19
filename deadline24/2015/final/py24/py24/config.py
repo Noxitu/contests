@@ -5,8 +5,7 @@ import re
 
 config = {
     'data-path': './data/:id/',
-    'loop': False,
-    'mode': 'd24'
+    'loop': False
 }
 
 def _try_bool(value):
