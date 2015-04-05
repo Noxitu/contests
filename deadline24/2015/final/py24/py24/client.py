@@ -76,6 +76,8 @@ class Client:
         
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect( (config['hostname'], config['port']) )
+        self._socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        
         log.net_conn()
         self._buffer = ''
 
