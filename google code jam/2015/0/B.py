@@ -7,12 +7,7 @@ def test():
     P = iline()
     
     def solve():
-        P.sort()
-        def solve():
-            for i in xrange(1, P[-1]+1):
-                yield i + sum( (p-1)/i for p in P )
-                
-        print min(solve())
+        print min( i + sum( (p-1)/i for p in P ) for i in xrange(1, max(P)+1) )
         
     return solve
     

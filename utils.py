@@ -10,9 +10,8 @@ def line(*args):
 	return [ type(data) for data, type in L ]	
 	
 def iline(): return map( int, _line().strip().split() )
-def fline(): return map( int, _line().strip().split() )
+def fline(): return map( float, _line().strip().split() )
 
 def setLineInput(input_file):
 	global _line
 	_line = lambda : input_file.readline()
-	

@@ -22,211 +22,239 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 class stdoutSwapper:
-	def __init__(self, new_stdout):
-		self.new_stdout = new_stdout
-		
-	def __enter__(self):
-		self.old_stdout, sys.stdout = sys.stdout, self.new_stdout
-		
-	def __exit__(self, type, value, traceback):
-		sys.stdout = self.old_stdout
-		
+    def __init__(self, new_stdout):
+        self.new_stdout = new_stdout
+        
+    def __enter__(self):
+        self.old_stdout, sys.stdout = sys.stdout, self.new_stdout
+        
+    def __exit__(self, type, value, traceback):
+        sys.stdout = self.old_stdout
+        
 def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs):
-	solve_start = time.time()
-	
-	with stdoutSwapper(output_file):
-		setLineInput(input_file)
-		T, = iline()
-		
-		if debug:
-			print >>sys.stderr, '\tFound $B%d$$ cases.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (T)
-		
-		for id in xrange(1, T+1):
-			if not delayCase:
-				print 'Case #%d:' % id,
-				
-			solve = task.test()
-			
-			if hasattr(solve, '__call__'):
-				if delayCase:
-					print 'Case #%d:' % id,
-					
-				solve()
-				
-				if debug:
-					print >>sys.stderr, '\tCase $B#%d$$ solved [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, 1000*(time.time()-solve_start), T-id)
-				
-				
+    solve_start = time.time()
+    
+    with stdoutSwapper(output_file):
+        setLineInput(input_file)
+        T, = iline()
+        
+        if debug:
+            print >>sys.stderr, '\tFound $B%d$$ cases.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (T)
+        
+        for id in xrange(1, T+1):
+            if not delayCase:
+                print 'Case #%d:' % id,
+                
+            solve = task.test()
+            
+            if hasattr(solve, '__call__'):
+                if delayCase:
+                    print 'Case #%d:' % id,
+                    
+                solve()
+                
+                if debug:
+                    print >>sys.stderr, '\tCase $B#%d$$ solved [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, 1000*(time.time()-solve_start), T-id)
+                
+                
 def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
-	solve_start = time.time()	
-	solvers = []
-	
-	setLineInput(input_file)
-	T, = iline()
-		
-	for i in xrange(1, T+1):
-		with stdoutSwapper(output_file):
-			solve = task.test()
-			if hasattr(solve, '__call__'):
-				solvers.append(( i, solve ))
-					
-	if len(solvers) != T:
-		raise Exception('cant solve paraller')
-		
-	if debug:
-		print >>sys.stderr, '\tInput loaded [$B%dms$$]. Found $B%d$$ cases.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (1000*(time.time()-solve_start), T)
-		
-	fds = []
-	queue_in = multiprocessing.Queue()
-	queue_out = multiprocessing.Queue()
-	output_data = [ None for t in solvers ]
-	
-	for i in xrange(T):
-		queue_in.put(i)
-		
-	for p in xrange(processes):
-		pid = os.fork()
-		
-		if pid == 0:
-			while True:
-				try:
-					i = queue_in.get(False)
-					id, solve = solvers[i]
-					output_data = StringIO()
-					with stdoutSwapper(output_data):
-						print 'Case #%d:' % id,
-						solve()
-						
-					queue_out.put(( i, output_data.getvalue(), p ))
-						
-				except Queue.Empty:
-					sys.exit(0)
-	
-	for j in xrange(T):
-		i, data, p = queue_out.get()
-		id = solvers[i][0]
-		output_data[i] = data
-		if debug:
-			print >>sys.stderr, '\tCase $B#%d$$ solved by $B@%d$$ [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, p+1, 1000*(time.time()-solve_start), T-j-1)
-		
-	for data in output_data:
-		output_file.write(data)
-			
+    solve_start = time.time()    
+    solvers = []
+    
+    setLineInput(input_file)
+    T, = iline()
+        
+    for i in xrange(1, T+1):
+        with stdoutSwapper(output_file):
+            solve = task.test()
+            if hasattr(solve, '__call__'):
+                solvers.append(( i, solve ))
+                    
+    if len(solvers) != T:
+        raise Exception('cant solve paraller')
+        
+    if debug:
+        print >>sys.stderr, '\tInput loaded [$B%dms$$]. Found $B%d$$ cases.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (1000*(time.time()-solve_start), T)
+        
+    fds = []
+    queue_in = multiprocessing.Queue()
+    queue_out = multiprocessing.Queue()
+    output_data = [ None for t in solvers ]
+    
+    for i in xrange(T):
+        queue_in.put(i)
+        
+    for p in xrange(processes):
+        pid = os.fork()
+        
+        if pid == 0:
+            while True:
+                try:
+                    i = queue_in.get(False)
+                    id, solve = solvers[i]
+                    output_data = StringIO()
+                    with stdoutSwapper(output_data):
+                        print 'Case #%d:' % id,
+                        solve()
+                        
+                    queue_out.put(( i, output_data.getvalue(), p ))
+                        
+                except Queue.Empty:
+                    sys.exit(0)
+    
+    for j in xrange(T):
+        i, data, p = queue_out.get()
+        id = solvers[i][0]
+        output_data[i] = data
+        if debug:
+            print >>sys.stderr, '\tCase $B#%d$$ solved by $B@%d$$ [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, p+1, 1000*(time.time()-solve_start), T-j-1)
+        
+    for data in output_data:
+        output_file.write(data)
+            
 def findInputFiles(path, taskid):
-	files = os.listdir(path)
-	
-	examples = []
-	problems = []
-	problem = None
-	
-	for f in files:
-		if f.endswith('.in'):
-			if f.startswith('%s-example' % taskid):
-				examples.append( (f, f[:-3]+'.out') )
-			elif f.startswith(taskid):
-				problems.append( (f, f[:-3]+'.out') )
-				
-	if problems:
-		problem = max(problems, key=lambda (I,O) : os.path.getctime(path+I))
-				
-	return examples, problem
-	
+    files = os.listdir(path)
+    
+    examples = []
+    problems = []
+    problem = None
+    
+    for f in files:
+        if f.endswith('.in'):
+            if f.startswith('%s-example' % taskid):
+                examples.append( (f, f[:-3]+'.out') )
+            elif f.startswith(taskid):
+                problems.append( (f, f[:-3]+'.out') )
+                
+    if problems:
+        problem = max(problems, key=lambda (I,O) : os.path.getctime(path+I))
+                
+    return examples, problem
+    
 def file_contents(f):
-	return [ l.split() for l in f.read().split('\n') ]
-	
+    return [ l.split() for l in f.read().split('\n') ]
+    
 def are_same(one, two):
-	return one == two
-	
+    return one == two
+    
 def color_diff(own, expected):
-	for y, L in enumerate(own):
-		for x, W in enumerate(L):
-			if y >= len(expected) or x >= len(expected[y]):
-				own[y][x] = bcolors.FAIL + W + bcolors.ENDC
-			elif W != expected[y][x]:
-				own[y][x] = bcolors.FAIL + W + bcolors.OKGREEN + ' (' + expected[y][x] + ')' + bcolors.ENDC
+    for y, L in enumerate(own):
+        for x, W in enumerate(L):
+            if y >= len(expected) or x >= len(expected[y]):
+                own[y][x] = bcolors.FAIL + W + bcolors.ENDC
+            elif W != expected[y][x]:
+                own[y][x] = bcolors.FAIL + W + bcolors.OKGREEN + ' (' + expected[y][x] + ')' + bcolors.ENDC
 
 if __name__ == '__main__':
 
-	parser = argparse.ArgumentParser(description='Framework for solving Google Code Jam and Facebook Hacker Cup.')
-	parser.add_argument('-p', '--processes', help='use multiple processes while solving', type=int, default=1)
-	parser.add_argument('-I', '--init', help='initize task source', action='store_true')
-	parser.add_argument('-s', '--std', help='use stdin as input and stdout as output', action='store_true')
-	parser.add_argument('-o', '--output', help='use stdout as output', action='store_true')
-	parser.add_argument('-d', '--debug', help='display debug information (eg. solved cases)', action='store_true')
-	parser.add_argument('-r', '--round', help='round directory path. Defaults to last used stored in "codejam.round"')
-	parser.add_argument('-q', '--quiet', help='hide all stderr text', action='store_true')
-	parser.add_argument('task', help='task id')
+    parser = argparse.ArgumentParser(description='Framework for solving Google Code Jam and Facebook Hacker Cup.')
+    parser.add_argument('-p', '--processes', help='use multiple processes while solving', type=int, default=1)
+    parser.add_argument('-I', '--init', help='initize task source', action='store_true')
+    parser.add_argument('-s', '--std', help='use stdin as input and stdout as output', action='store_true')
+    parser.add_argument('-o', '--output', help='use stdout as output', action='store_true')
+    parser.add_argument('-d', '--debug', help='display debug information (eg. solved cases)', action='store_true')
+    parser.add_argument('-r', '--round', help='round directory path. Defaults to last used stored in "codejam.round"')
+    parser.add_argument('-q', '--quiet', help='hide all stderr text', action='store_true')
+    parser.add_argument('task', help='task id')
 
-	args = parser.parse_args()
-	
-	if args.quiet:
-		sys.stderr = open(os.devnull, 'w')
-	
-	directory = args.round
-	
-	if directory is None:
-		with open('codejam.round') as f:
-			directory = f.read().strip()
-	else:
-		with open('codejam.round', 'w') as f:
-			f.write(directory)
-			
-	if directory[-1] != '/':
-		directory += '/'
-	
-	source_path = '%s%s.py' % (directory, args.task)
-	
-	if args.init:
-		if os.path.exists(source_path):
-			raise Exception('Source file already exisits!')
-			
-		copyfile('task.py.tpl', source_path )
-		sys.exit(0)
-	
-	print >>sys.stderr, 'Loading solution module...'
-	task = imp.load_source( 'task', source_path )
-	solve = complex_solve if args.processes > 1 else simple_solve
-	
-	examples, problem = findInputFiles(directory, args.task)
-	
-	for I, O in examples:
-		print >>sys.stderr, 'Solving example "%s"...' % I
-		with open(directory+I) as input_file, TemporaryFile() as output_file:
-			simple_solve(input_file, output_file)
-			
-			output_file.seek(0)
-			try:
-				with open(directory+O) as expected_file:
-					output_content = file_contents(output_file)
-					expected_content = file_contents(expected_file)
-					
-					if not are_same(output_content, expected_content):
-						print >>sys.stderr, bcolors.FAIL, 'Example "%s" has incorrect output!' % I, bcolors.ENDC
-						color_diff(output_content, expected_content)
-						print >>sys.stderr, '\n'.join( ' '.join( l ) for l in output_content )
-			except IOError:
-				print >>sys.stderr, bcolors.WARNING, 'Couldnt verify example "%s" output!' % I, bcolors.ENDC
-				
-	if problem or args.std: 
-		print >>sys.stderr, 'Solving %s...' % ('STDIN' if args.std else '"%s"' % problem[0])
-		with sys.stdin if args.std else open(directory+problem[0]) as input_file:
-			with sys.stdout if args.std or args.output else open(directory+problem[1], 'w') as output_file:
-				solve( input_file, output_file, debug=args.debug, processes=args.processes, delayCase=args.std or args.output )
-			
+    args = parser.parse_args()
+    
+    if args.quiet:
+        sys.stderr = open(os.devnull, 'w')
+    
+    directory = args.round
+    
+    if directory is None:
+        with open('codejam.round') as f:
+            directory = f.read().strip()
+    else:
+        with open('codejam.round', 'w') as f:
+            f.write(directory)
+                
+    if directory[-1] != '/':
+        directory += '/'
+    
+    source_path = '%s%s.py' % (directory, args.task)
+    
+    if args.init:
+        if os.path.exists(source_path):
+            raise Exception('Source file already exisits!')
+            
+        copyfile('task.py.tpl', source_path )
+        sys.exit(0)
+    
+    print >>sys.stderr, 'Loading solution module...'
+    task = imp.load_source( 'task', source_path )
+    solve = complex_solve if args.processes > 1 else simple_solve
+    
+    examples, problem = findInputFiles(directory, args.task)
+    
+    for I, O in examples:
+        print >>sys.stderr, 'Solving example "%s"...' % I
+        with open(directory+I) as input_file, TemporaryFile() as output_file:
+            simple_solve(input_file, output_file)
+            
+            output_file.seek(0)
+            try:
+                with open(directory+O) as expected_file:
+                    output_content = file_contents(output_file)
+                    expected_content = file_contents(expected_file)
+                    
+                    if not are_same(output_content, expected_content):
+                        print >>sys.stderr, bcolors.FAIL, 'Example "%s" has incorrect output!' % I, bcolors.ENDC
+                        color_diff(output_content, expected_content)
+                        print >>sys.stderr, '\n'.join( ' '.join( l ) for l in output_content )
+            except IOError:
+                print >>sys.stderr, bcolors.WARNING, 'Couldnt verify example "%s" output!' % I, bcolors.ENDC
+                
+    if problem or args.std: 
+        print >>sys.stderr, 'Solving %s...' % ('STDIN' if args.std else '"%s"' % problem[0])
+        with sys.stdin if args.std else open(directory+problem[0]) as input_file:
+            with sys.stdout if args.std or args.output else open(directory+problem[1], 'w') as output_file:
+                solve( input_file, output_file, debug=args.debug, processes=args.processes, delayCase=args.std or args.output )
+            
 
-			
-	tar_name = '%s-source.tar' % args.task
-	print >>sys.stderr, 'Creating "%s"...' % tar_name
-	
-	with tarfile.open(directory+tar_name, 'w') as tar:
-	
-		for path,filename in [(source_path, 'solution.py'), ('utils.py', 'utils.py')]:
-			def filter_tarinfo(t):
-				t.name = filename
-				t.mtime = t.mode = t.uid = t.gid = 0
-				t.uname = t.gname = ''
-				t.pax_headers = {}
-				return t
-				
-			tar.add(path, filter=filter_tarinfo)
-		
+    final_name = '%s-source.py' % args.task
+    print >>sys.stderr, 'Creating "%s"...' % final_name
+    
+    with open(directory+final_name, 'w') as f:
+        print >>f, 'import imp'
+        print >>f, '__py_source_triple = [ t for t in imp.get_suffixes() if t[2] == imp.PY_SOURCE ][0]'
+        print >>f
+        
+        for name, mod in sys.modules.items():
+            if hasattr(mod, '__file__') and mod.__file__.lower().startswith('/home/grzegorz/'):
+                path = mod.__file__
+                if path[-1] == 'c':
+                    path = path[:-1]
+                with open(path) as mod_source:
+                    content = mod_source.read()
+                content = content.replace('\\','\\\\').replace('"','\\"')
+#                print >>f, 'imp.load_module("%s", __mod_source, "", __py_source_triple)' % name
+                print >>f, '__mod = imp.new_module("%s")' % name
+                print >>f, 'exec """%s""" in vars(__mod)' % content
+                print >>f
+               
+        with open(source_path) as task_file:
+            f.write(task_file.read())
+    
+    
+    """tar_name = '%s-source.tar' % args.task
+    print >>sys.stderr, 'Creating "%s"...' % tar_name
+    
+    with open(directory+'utils.py', 'w') as w_file:
+        with open('utils.py') as r_file:
+            w_file.write( r_file.read() )
+    
+    with tarfile.open(directory+tar_name, 'w') as tar:
+    
+        for path,filename in [(source_path, 'solution.py'), ('utils.py', 'utils.py')]:
+            def filter_tarinfo(t):
+                t.name = filename
+                t.mtime = t.mode = t.uid = t.gid = 0
+                t.uname = t.gname = ''
+                t.pax_headers = {}
+                return t
+                
+            tar.add(path, filter=filter_tarinfo)"""
+        
