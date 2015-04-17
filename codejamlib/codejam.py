@@ -7,6 +7,8 @@ from cStringIO import StringIO
 from shutil import copyfile
 from tempfile import TemporaryFile
 
+from swapper import stdinSwapper, stdoutSwapper
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -17,23 +19,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     
-def genericSwapper(obj):
-    class theSwapper:
-        def __init__(self, new_value):
-            self.new_value = new_value
-            
-        def __enter__(self):
-            exec "self.old_value = %s" % obj in globals(), locals()
-            exec "%s = self.new_value" % obj in globals(), locals()
-            
-        def __exit__(self, type, value, traceback):
-            exec "%s = self.old_value" % obj in globals(), locals()
-            
-    return theSwapper
-            
-stdinSwapper = genericSwapper('sys.stdin')
-stdoutSwapper = genericSwapper('sys.stdout')
-        
 def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs):
     solve_start = time.time()
     
@@ -220,38 +205,6 @@ if __name__ == '__main__':
                 solve( input_file, output_file, debug=args.debug, processes=args.processes, delayCase=args.std or args.output )
             
 
-    final_name = '%s-source.py' % args.task
-    print >>sys.stderr, 'Creating "%s"...' % final_name
-    
-    with open(final_name, 'w') as f:
-        print >>f, 'import imp'
-        print >>f, '__py_source_triple = [ t for t in imp.get_suffixes() if t[2] == imp.PY_SOURCE ][0]'
-        print >>f
-        
-        for name, mod in sys.modules.items():
-            if hasattr(mod, '__file__') and not mod.__file__.lower().startswith('/usr/lib') and name not in ('__main__', 'task'):
-                path = mod.__file__
-                if path[-1] == 'c':
-                    path = path[:-1]
-                print >>sys.stderr, '\tIncluding "%s"...' % path
-                
-                with open(path) as mod_source:
-                    content = mod_source.read()
-                content = content.replace('\\','\\\\').replace('"','\\"')
-#                print >>f, 'imp.load_module("%s", __mod_source, "", __py_source_triple)' % name
-                print >>f, '__mod = imp.new_module("%s")' % name
-                print >>f, 'exec """%s""" in vars(__mod)' % content
-                print >>f
-               
-        with open(source_path) as task_file:
-            f.write(task_file.read())
-            
-        print >>f, """        
-        
-if __name__ == '__main__':
-    T = input()
-    for i in xrange(1, T+1):
-        print 'Case #%d:' % i,
-        test()()
-"""
+    from exporter import export
+    export( '%s-source.py' % args.task, source_path )
   
