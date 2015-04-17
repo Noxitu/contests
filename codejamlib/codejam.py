@@ -17,22 +17,22 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     
-def genericSwapper(obj, name):
+def genericSwapper(obj):
     class theSwapper:
         def __init__(self, new_value):
             self.new_value = new_value
             
         def __enter__(self):
-            self.old_value = getattr(obj, name)
-            setattr(obj, name, self.new_value)
+            exec "self.old_value = %s" % obj in globals(), locals()
+            exec "%s = self.new_value" % obj in globals(), locals()
             
         def __exit__(self, type, value, traceback):
-            setattr(obj, name, self.old_value)
+            exec "%s = self.old_value" % obj in globals(), locals()
             
     return theSwapper
             
-stdinSwapper = genericSwapper(sys, 'stdin')
-stdoutSwapper = genericSwapper(sys, 'stdout')
+stdinSwapper = genericSwapper('sys.stdin')
+stdoutSwapper = genericSwapper('sys.stdout')
         
 def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs):
     solve_start = time.time()
