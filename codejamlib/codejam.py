@@ -153,13 +153,12 @@ if __name__ == '__main__':
     parser.add_argument('-I', '--init', help='initize task source', action='store_true')
     parser.add_argument('-s', '--std', help='use stdin as input and stdout as output', action='store_true')
     parser.add_argument('-o', '--output', help='use stdout as output', action='store_true')
+    parser.add_argument('-f', '--file', help='solve test with given name')
     parser.add_argument('-d', '--debug', help='display debug information (eg. solved cases)', action='store_true')
     parser.add_argument('-q', '--quiet', help='hide all stderr text', action='store_true')
     parser.add_argument('task', help='task id')
 
     args = parser.parse_args()
-    
-    print __file__
     
     if args.quiet:
         sys.stderr = open(os.devnull, 'w')
@@ -172,6 +171,7 @@ if __name__ == '__main__':
             
         copyfile(os.path.join( os.path.dirname(__file__), 'task.py.tpl' ), source_path )
         sys.exit(0)
+        
     
     print >>sys.stderr, 'Loading solution module...'
     task = imp.load_source( 'task', source_path )
@@ -196,6 +196,22 @@ if __name__ == '__main__':
                         print >>sys.stderr, '\n'.join( ' '.join( l ) for l in output_content )
             except IOError:
                 print >>sys.stderr, bcolors.WARNING, 'Couldnt verify example "%s" output!' % I, bcolors.ENDC
+                
+    if args.file:
+        in_path = None
+        for path in (args.file, args.file+'.in', args.file.rsplit('.')[0]+'.in'):
+            if os.path.exists(path):
+                in_path = path
+                break
+            
+        if in_path is None:
+            raise Exception('Couldnt find input file!')
+                
+        if in_path.endswith('.in'):
+            out_path = in_path[:-3] + '.out'
+        else:
+            out_path = in_path + '.out'
+        problem = in_path, out_path
                 
     if problem or args.std: 
         print >>sys.stderr, 'Solving %s...' % ('STDIN' if args.std else '"%s"' % problem[0])
