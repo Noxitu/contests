@@ -19,7 +19,6 @@ def export( final_name, source_path ):
     
     with open(final_name, 'w') as f:
         print >>f, 'import imp'
-        print >>f, '__py_source_triple = [ t for t in imp.get_suffixes() if t[2] == imp.PY_SOURCE ][0]'
         print >>f
         
         parsed_modules = set()
