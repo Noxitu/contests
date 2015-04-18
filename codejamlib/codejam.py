@@ -7,17 +7,10 @@ from cStringIO import StringIO
 from shutil import copyfile
 from tempfile import TemporaryFile
 
+import bcolors
 from swapper import stdinSwapper, stdoutSwapper
+from exporter import export
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
     
 def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs):
     solve_start = time.time()
@@ -42,6 +35,8 @@ def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs
                 
                 if debug:
                     print >>sys.stderr, '\tCase $B#%d$$ solved [$B%dms$$]. $B%d$$ cases left.'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (id, 1000*(time.time()-solve_start), T-id)
+    if debug:                
+        print >>sys.stderr, '\tOutput saved. [$B%dms$$].'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (1000*(time.time()-solve_start))
                 
                 
 def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
@@ -87,7 +82,7 @@ def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
                     solve()
                     
                 queue_out.put(( i, output_data.getvalue(), p ))
-                        
+                
     for j in xrange(T):
         i, data, p = queue_out.get()
         id = solvers[i][0]
@@ -97,6 +92,9 @@ def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
         
     for data in output_data:
         output_file.write(data)
+      
+    if debug:
+        print >>sys.stderr, '\tOutput saved. [$B%dms$$].'.replace('$B', bcolors.OKBLUE).replace('$$', bcolors.ENDC) % (1000*(time.time()-solve_start))
             
 def findInputFiles(taskid):
     files = os.listdir('.')
@@ -205,6 +203,5 @@ if __name__ == '__main__':
                 solve( input_file, output_file, debug=args.debug, processes=args.processes, delayCase=args.std or args.output )
             
 
-    from exporter import export
     export( '%s-source.py' % args.task, source_path )
   

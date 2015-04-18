@@ -18,7 +18,7 @@ def export( final_name, source_path ):
     print >>sys.stderr, 'Creating "%s"...' % final_name
     
     with open(final_name, 'w') as f:
-        print >>f, 'import imp'
+        print >>f, 'import imp, sys'
         print >>f
         
         parsed_modules = set()
@@ -38,7 +38,7 @@ def export( final_name, source_path ):
                         
             if name is not None:
                 print >>sys.stderr, '\tIncluding module "%s"...' % name
-                print >>f, '__mod = imp.new_module("%s")' % name
+                print >>f, 'sys.modules["%s"] = __mod = imp.new_module("%s")' % (name, name)
                 print >>f, 'exec """%s""" in vars(__mod)' % source.replace('\\','\\\\').replace('"','\\"')
                 print >>f
             else:
