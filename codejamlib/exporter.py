@@ -56,5 +56,9 @@ if __name__ == '__main__':
     T = input()
     for i in xrange(1, T+1):
         print 'Case #%d:' % i,
-        test()()
+        solver = test()
+        if hasattr(solver, 'next'):
+            list(solver)
+        elif callable(solver):
+            solver()
 """

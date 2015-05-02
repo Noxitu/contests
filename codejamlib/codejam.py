@@ -26,6 +26,9 @@ def simple_solve(input_file, output_file, debug=False, delayCase=False, **kwargs
                 print 'Case #%d:' % id,
                 
             solve = task.test()
+            if hasattr(solve,'next'):
+                solve.next()
+                solve = (lambda s : lambda : all(s))(solve)
             
             if hasattr(solve, '__call__'):
                 if delayCase:
@@ -49,6 +52,10 @@ def complex_solve(input_file, output_file, debug=False, processes=4, **kwargs):
         for i in xrange(1, T+1):
             with stdoutSwapper(output_file):
                 solve = task.test()
+                if hasattr(solve,'next'):
+                    solve.next() 
+                    solve = (lambda s : lambda : all(s))(solve)
+                    
                 if hasattr(solve, '__call__'):
                     solvers.append(( i, solve ))
                     

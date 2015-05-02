@@ -5,7 +5,7 @@ from utils import iline
 def test():
     pass # read input here
     
-    def solve():
-        print # calculate and print answer here
+    yield
+    
+    print # calculate and print answer here
         
-    return solve
