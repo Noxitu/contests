@@ -21,6 +21,11 @@ inline ostream& operator<< (ostream& out, const pair<A, B>& data) {
     return out << data.first << ' ' << data.second;
 }
 
+template<typename A, typename B>
+inline istream& operator>> (istream& in, pair<A, B>& data) {
+    return in >> data.first >> data.second;
+}
+
 template<typename T>
 class vector_from_one : public vector<T> {
     public:
