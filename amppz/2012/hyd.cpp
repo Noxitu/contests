@@ -4,7 +4,7 @@ int main() { return main_one(); }
 
 struct Vertex {
     long long destroy_cost, split_cost;
-    vector<Vertex*> down, up;
+    vector<Vertex*> up;
 };
 
 
@@ -18,16 +18,17 @@ void test() {
         while( count --> 0 ) {
             int g;
             cin >> g;
-            h.down.push_back(&heads[g]);
             heads[g].up.push_back(&h);
         }
     }
     
     priority_queue<pair<long long, Vertex*>> Q;
     for( auto& h : heads ) {
-        for( auto v : h.down )
-            h.split_cost += v->destroy_cost;
-            
+        for( auto v : h.up )
+            v->split_cost += h.destroy_cost;
+    }
+    
+    for( auto& h : heads ) {
         Q.push(make_pair(-h.destroy_cost, &h));
         Q.push(make_pair(-h.split_cost, &h));
     }

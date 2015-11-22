@@ -1,0 +1,3 @@
+#!/bin/bash
+../../ojoj/tester/tester.py $1/$2.cpp `ls mainedupl_data/tests/amppz_$1_$2/$2*.in | sort -V`
+
