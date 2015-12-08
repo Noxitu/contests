@@ -48,27 +48,28 @@ int main_one() {
 }
 
 int main_many() {
-#ifdef use_iostream
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-#endif
     int T;
-#ifdef use_iostream
     cin >> T;
-#else
-    scanf("%d", &T); 
-#endif
     while( T --> 0 )
         test();
     return 0;
 }
 
-inline istream& operator>> (istream& in, pair<double, double>& data) {
-    string str;
-    in >> str;
-    data.first = stod(str);
-    in >> str;
-    data.second = stod(str);
+class Double {
+    private:
+        double value;
+    public:
+        inline Double() {}
+        inline Double(double value) : value(value) {}
+        inline operator double() const { return value; }
+};
+
+inline istream& operator>> (istream& in, Double &val) {
+    static string buffer;
+    in >> buffer;
+    val = stod(buffer);
     return in;
 }
 
@@ -77,13 +78,9 @@ constexpr double pi = 4*atan(1);
 
 void test() {
     int n, k;
-#ifdef use_iostream
     cin >> n >> k;
-#else
-    scanf("%d %d", &n, &k);
-#endif
 
-    pair<double, double> prev, first, next;
+    pair<Double, Double> prev, first, next;
     
     double border = pi*k*k;
     double inner = 0;
@@ -91,11 +88,7 @@ void test() {
         if( i == n )
             next = first;
         else
-#ifdef use_iostream
             cin >> next;
-#else
-            scanf("%lf %lf", &next.first, &next.second);
-#endif
         if( i == 0 )
             first = next;
         else {
@@ -105,10 +98,6 @@ void test() {
         prev = next;
     }
 
-#ifdef use_iostream    
     cout << border+fabs(inner) << '\n';
-#else
-    printf("%lf\n", border+fabs(inner) );
-#endif
 }
 
