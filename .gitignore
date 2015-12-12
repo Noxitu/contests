@@ -1,3 +1,7 @@
+#Custom
+/codejam.round
+mainedupl_data/tests
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

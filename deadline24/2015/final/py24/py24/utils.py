@@ -15,8 +15,6 @@ try:
 except:
     exec_ = eval('exec')
     
-    
-
 def Thread(func=None, daemon=True):
     """Functions with this decorator will start new thread.
         You can use @Thread or @Thread(daemon=True/False)

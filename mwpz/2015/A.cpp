@@ -64,40 +64,43 @@ class Double {
         inline Double() {}
         inline Double(double value) : value(value) {}
         inline operator double() const { return value; }
+        friend inline istream& operator>> (istream& in, Double &val) {
+            static char buffer[32];
+            char *c = buffer;
+            do {
+                *c = in.get();
+            } while( *c <= 32 or *c >= 128 );
+            while( *c > 32 and *c < 128 ) {
+                c++;
+                *c = in.get();
+            }
+            *c = '\0';
+            val = strtod(buffer, nullptr);
+            return in;
+        }
 };
 
-inline istream& operator>> (istream& in, Double &val) {
-    static string buffer;
-    in >> buffer;
-    val = stod(buffer);
-    return in;
-}
-
-int main() { cout << setprecision(5) << fixed; return main_many(); }
+int main() { cout << setprecision(4) << fixed; return main_many(); }
 constexpr double pi = 4*atan(1);
 
 void test() {
     int n, k;
     cin >> n >> k;
-
     pair<Double, Double> prev, first, next;
     
-    double border = pi*k*k;
+    double border = pi*k;
     double inner = 0;
-    for( int i = 0; i <= n; i++ ) {
-        if( i == n )
-            next = first;
-        else
-            cin >> next;
-        if( i == 0 )
-            first = next;
-        else {
-            border += hypot( next.first-prev.first, next.second-prev.second)*k;
-            inner += .5*(next.first-prev.first)*(next.second+prev.second);
-        }
+    cin >> first;
+    prev = first;
+    for( int i = 1; i < n; i++ ) {
+        cin >> next;
+        border += hypot( next.first-prev.first, next.second-prev.second);
+        inner += (next.first-prev.first)*(next.second+prev.second);
         prev = next;
     }
+    border += hypot( first.first-prev.first, first.second-prev.second);
+    inner += (first.first-prev.first)*(first.second+prev.second);
 
-    cout << border+fabs(inner) << '\n';
+    cout << border*k+fabs(inner)/2 << '\n';
 }
 

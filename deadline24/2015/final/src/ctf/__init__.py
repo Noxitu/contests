@@ -22,12 +22,16 @@ class CTF(Client):
         self.getiline()
         return self.getiline()
 
+
 def run():
-    #game = CTF()
+    game = CTF()
     
     while True:
         try:
-            log.status_format('{game}\n{config}', locals(), globals())
+            time, = game.GET_TIME()
+            game.MOVE_NORTH(5)
+            
+            log.status_format('Aktualny wynik: {game.score}\n{config["id"]}', locals(), globals())
             raise Failed(5)('No way!')
             game.WAIT()
         except Failed(9):

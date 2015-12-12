@@ -36,6 +36,11 @@ struct vertex_t : vector<vertex_t*> {
     vertex_t() : visited(false) {}
 };*/
 
+#define lol __LINE__
+
+
+lol;
+
 int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
 
 void test() {

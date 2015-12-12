@@ -105,7 +105,7 @@ def save_dataset( dataset ):
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser(description='Solve some tasks.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-	parser.add_argument('task_id', choices=['fil','pas','pap','test'], help='the task id')
+	parser.add_argument('task_id', help='the task id')
 	parser.add_argument('-p', '--processes', type=int, help='number of executed processes', default=multiprocessing.cpu_count() )
 	parser.add_argument('-c', '--config', help='config file', default='{id}.conf' )
 	parser.add_argument('-s', '--state', help='state file', default='{id}.state' )

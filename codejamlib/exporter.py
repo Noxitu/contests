@@ -22,7 +22,7 @@ def export( final_name, source_path ):
         print >>f
         
         parsed_modules = set()
-        import_finder = re.compile(r'(?m)^\s*(?:import\s+((?:[ \t]|\w|,)+))|(?:from\s+(\w+)\s+import)')
+        import_finder = re.compile(r'(?m)^\s*(?:(?:import\s+((?:[ \t]|\w|,)+))|(?:from\s+(\w+)\s+import))')
         import_spliter = re.compile(r'(\w+)(?:\s+as\s+\w+)?')
         
         def parse_module(source, name=None):

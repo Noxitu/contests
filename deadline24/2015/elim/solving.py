@@ -82,6 +82,8 @@ if __name__ == '__main__':
 			continue 
 				
 		if ret == 'timer()':
+			if changed:
+				print >>sys.stderr, 'Saving...'
 			for dataset in changed:
 				save_dataset(( dataset, task.save_answer ))
 			changed &= set()

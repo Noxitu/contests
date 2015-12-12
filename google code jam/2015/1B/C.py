@@ -9,7 +9,7 @@ def test():
     yield
     
     data = [ (d,m+x) for d,h,m in data for x in xrange(h) ]
-    h = heap( ((360-d)*m, 0, d, m) for d,m in data )
+    h = heap( ((360-d)*m, True, m) for d,m in data )
     n = len(data)
     
     def calc():
@@ -17,12 +17,12 @@ def test():
         yield result
         
         for i in xrange(2*n):
-            when, count, d, m = h.pop()
-            if count == 0:
+            when, first_overtake, m = h.pop()
+            if first_overtake:
                 result -= 1
             else:
                 result += 1
-            h.push(( when+m*360, count-1, d, m ))
+            h.push(( when+m*360, False, m ))
             yield result
     
     print min(calc())

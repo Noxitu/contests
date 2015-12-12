@@ -88,6 +88,8 @@ long long test( vector<int>& players, vector<char>& moves ) {
             if( from_loops > 0 and sum >= 0 )
                 continue;
                 
+            //from_loops -= from_loops % -sum;
+            //int loops = from_loops / -sum;
             int loops = from_loops == 0 ? 0 : (from_loops-sum-1)/-sum;
             int score_diff = players[p] + loops*sum;
             int x = level_get(score_begin-score_diff) - i;

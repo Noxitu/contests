@@ -24,7 +24,7 @@ def test():
 			K = max( [0] + [ RET[c][0] for c in C[p] ] )
 			
 			possible = []
-			for k in xrange(1,K+3):
+			for k in xrange(1, K+3):
 				v = k + sum( v1 if kc != k else v2 for kc, v1, v2 in (RET[c] for c in C[p]) )
 				possible.append((k, v)) 
 				

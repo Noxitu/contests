@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from utils import iline, heap
+from utils import iline
 
 def test():
     iline()
@@ -15,4 +15,4 @@ if __name__ == '__main__':
     T, = iline()
     for i in xrange(1, T+1):
         print 'Case #%d:' % i,
-        test()
+        test()()
