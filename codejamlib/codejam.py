@@ -123,7 +123,7 @@ def findInputFiles(taskid):
     return examples, problem
     
 def file_contents(f):
-    return [ l.split() for l in f.read().split('\n') ]
+    return [ l.split() for l in f.read().rstrip().split('\n') ]
     
 def are_same(one, two):
     return one == two
@@ -139,12 +139,12 @@ def color_diff(own, expected):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Framework for solving Google Code Jam and Facebook Hacker Cup.')
-    parser.add_argument('-p', '--processes', help='use multiple processes while solving', type=int, default=1)
+    parser.add_argument('-p', '--processes', help='use multiple processes while solving', type=int, default=multiprocessing.cpu_count())
     parser.add_argument('-I', '--init', help='initize task source', action='store_true')
     parser.add_argument('-s', '--std', help='use stdin as input and stdout as output', action='store_true')
     parser.add_argument('-o', '--output', help='use stdout as output', action='store_true')
     parser.add_argument('-f', '--file', help='solve test with given name')
-    parser.add_argument('-d', '--debug', help='display debug information (eg. solved cases)', action='store_true')
+    #parser.add_argument('-d', '--debug', help='display debug information (eg. solved cases)', action='store_true')
     parser.add_argument('-q', '--quiet', help='hide all stderr text', action='store_true')
     parser.add_argument('task', help='task id')
 
@@ -207,7 +207,7 @@ if __name__ == '__main__':
         print >>sys.stderr, 'Solving %s...' % ('STDIN' if args.std else '"%s"' % problem[0])
         with sys.stdin if args.std else open(problem[0]) as input_file:
             with sys.stdout if args.std or args.output else open(problem[1], 'w') as output_file:
-                solve( input_file, output_file, debug=args.debug, processes=args.processes, delayCase=args.std or args.output )
+                solve( input_file, output_file, debug=True, processes=args.processes, delayCase=args.std or args.output )
             
 
     export( '%s-source.py' % args.task, source_path )
