@@ -1,6 +1,7 @@
 #Custom
 /codejam.round
 mainedupl_data/tests
+*-source.py
 *.out
 *.in
 *.exe
@@ -11,6 +12,7 @@ mainedupl_data/tests
 *.stackdump
 *.pdf
 *.zip
+*.tar
 dane_testowe
 node_modules
 
