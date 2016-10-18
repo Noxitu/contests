@@ -1,5 +1,5 @@
 /*********************************
-*****     Common v2.0.0      *****
+*****     Common v2.0.1      *****
 *********************************/
 #include <bits/stdc++.h>
 
@@ -72,7 +72,7 @@ namespace common {
         Iterable<iterator> iterable(iterator begin, iterator end){ return Iterable<iterator>(begin, end); }
 
         template<typename Collection>
-        auto reversed(Collection &collection) -> decltype(collection.rbegin()) { return iterable(collection.rbegin(), collection.rend()); }
+        auto reversed(Collection &collection) -> Iterable<decltype(collection.rbegin())> { return iterable(collection.rbegin(), collection.rend()); }
     }
  
     namespace main {
