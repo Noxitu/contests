@@ -92,27 +92,18 @@ class Double {
         }
 };
 
-int main() { cout << setprecision(4) << fixed; return main_many(); }
-constexpr double pi = 4*atan(1);
+/* --------------- </biblioteczka> --------------------- */
+
+int main() { return main_one(); }
 
 void test() {
     int n, k;
     cin >> n >> k;
-    pair<Double, Double> prev, first, next;
-    
-    double border = pi*k;
-    double inner = 0;
-    cin >> first;
-    prev = first;
-    for( int i = 1; i < n; i++ ) {
-        cin >> next;
-        border += hypot( next.first-prev.first, next.second-prev.second);
-        inner += (next.first-prev.first)*(next.second+prev.second);
-        prev = next;
-    }
-    border += hypot( first.first-prev.first, first.second-prev.second);
-    inner += (first.first-prev.first)*(first.second+prev.second);
-
-    cout << border*k+fabs(inner)/2 << '\n';
+    vector<unsigned long long> answer(n+1, 0);
+    answer[0] = 1;
+    for( int pos = 0; pos < n; pos++ )
+        for( int step = 1; step <= k and pos+step <= n; step++ )
+            answer[pos+step] += answer[pos];
+    cout << answer.back() << endl;
 }
 

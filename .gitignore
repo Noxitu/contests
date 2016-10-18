@@ -1,6 +1,18 @@
 #Custom
 /codejam.round
 mainedupl_data/tests
+*.out
+*.in
+*.exe
+*.ans
+*.state
+*.swp
+*kopia.py
+*.stackdump
+*.pdf
+*.zip
+dane_testowe
+node_modules
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

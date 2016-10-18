@@ -1,3 +1,5 @@
+// (10:52) 11:16-10:40
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -21,11 +23,6 @@ inline ostream& operator<< (ostream& out, const pair<A, B>& data) {
     return out << data.first << ' ' << data.second;
 }
 
-template<typename A, typename B>
-inline istream& operator>> (istream& in, pair<A, B>& data) {
-    return in >> data.first >> data.second;
-}
-
 template<typename T>
 class vector_from_one : public vector<T> {
     public:
@@ -36,22 +33,32 @@ class vector_from_one : public vector<T> {
         const T& at (size_t n) const { return vector<T>::at(n-1); }
 };
 
-int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
+struct Edge {
+    int a, b;
+};
 
-void test();
+struct Vertex : public vector<Edge*> {
 
-int main_one() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    test();
-    return 0;
+};
+
+
+
+void test() {
+    int n, m;
+    cin >> n >> m;
+    
+    //vector_from_one<Vertex> 
+    char a, b;
+    int c, d;
+    cin >> a >> c >> b >> d;
+    cout << a << endl << b << endl << c << endl << d << endl;
 }
 
-int main_many() {
+int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     int T = 1;
-    cin >> T;
+    //cin >> T;
     while( T --> 0 )
         test();
     return 0;

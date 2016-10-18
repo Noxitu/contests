@@ -1,0 +1,1 @@
+alias codejam="python `pwd`/codejamlib/codejam.py"
