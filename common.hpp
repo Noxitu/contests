@@ -1,5 +1,5 @@
 /*********************************
-*****     Common v2.0.1      *****
+*****     Common v2.0.2      *****
 *********************************/
 #include <bits/stdc++.h>
 
@@ -45,7 +45,7 @@ namespace common {
 
     int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
 
-    namespace functional {
+    namespace functional {    
         template<class Object, typename Type, Type Object::* Field, typename Comparator=std::less<Type>>
         struct compare_field
         {
@@ -74,7 +74,21 @@ namespace common {
         template<typename Collection>
         auto reversed(Collection &collection) -> Iterable<decltype(collection.rbegin())> { return iterable(collection.rbegin(), collection.rend()); }
     }
- 
+    
+    namespace operators {
+        struct base_operator {};
+        template <typename LHS, typename OP> struct operator_proxy { LHS lhs; OP op; };
+
+        template <typename LHS, typename OP, typename SFINAE = typename std::enable_if<std::is_base_of<base_operator, typename std::remove_reference<OP>::type>::value>::type>
+        operator_proxy<LHS, OP> operator<(LHS &&lhs, OP &&op) { return {lhs, op}; }
+
+        template <typename LHS, typename OP, typename RHS>
+        auto operator>(operator_proxy<LHS, OP> proxy, RHS &&rhs) -> decltype(proxy.op(proxy.lhs, rhs)) { proxy.op(proxy.lhs, rhs); }
+
+        struct : public base_operator { template <typename T> void operator()(T &x, T y) const { if(y > x) x = y; } } const set_if_greater;
+        struct : public base_operator { template <typename T> void operator()(T &x, T y) const { if(y < x) x = y; } } const set_if_less;
+    }
+    
     namespace main {
         int main_one() {
             std::ios_base::sync_with_stdio(false);
@@ -86,7 +100,7 @@ namespace common {
         int main_many() {
             std::ios_base::sync_with_stdio(false);
             std::cin.tie(NULL);
-            int T = 1;
+            int T;
             std::cin >> T;
             while( T --> 0 )
                 test();
@@ -97,7 +111,9 @@ namespace common {
 
 using namespace std;
 using namespace common;
+using namespace common::io;
 using namespace common::functional;
+using namespace common::operators;
 using namespace common::main;
 
 // end of #include <common.hpp>
