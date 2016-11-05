@@ -1,5 +1,5 @@
 /*********************************
-*****     Common v2.0.2      *****
+*****     Common v2.0.5      *****
 *********************************/
 #include <bits/stdc++.h>
 
@@ -42,8 +42,9 @@ namespace common {
             T& at (size_t n) { return std::vector<T>::at(n-1); }
             const T& at (size_t n) const { return std::vector<T>::at(n-1); }
     };
-
-    int gcd(int a, int b) { return b == 0 ? a : gcd(b, a%b); }
+    
+    template<typename T>
+    T gcd(T const &a, T const &b) { return b == 0 ? a : gcd(b, a%b); }
 
     namespace functional {    
         template<class Object, typename Type, Type Object::* Field, typename Comparator=std::less<Type>>
@@ -85,8 +86,8 @@ namespace common {
         template <typename LHS, typename OP, typename RHS>
         auto operator>(operator_proxy<LHS, OP> proxy, RHS &&rhs) -> decltype(proxy.op(proxy.lhs, rhs)) { proxy.op(proxy.lhs, rhs); }
 
-        struct : public base_operator { template <typename T> void operator()(T &x, T y) const { if(y > x) x = y; } } const set_if_greater;
-        struct : public base_operator { template <typename T> void operator()(T &x, T y) const { if(y < x) x = y; } } const set_if_less;
+        struct : public base_operator { template <typename T> void operator()(T &x, T y) const { x = max(x, y); } } const set_if_greater;
+        struct : public base_operator { template <typename T> void operator()(T &x, T y) const { x = min(x, y); } } const set_if_less;
     }
     
     namespace main {
@@ -104,6 +105,18 @@ namespace common {
             std::cin >> T;
             while( T --> 0 )
                 test();
+            return 0;
+        }
+        
+        int main_all() {
+            std::ios_base::sync_with_stdio(false);
+            std::cin.tie(NULL);
+            std::cin.exceptions(std::ifstream::eofbit);
+            try {
+                while(std::cin)
+                    test();
+            }
+            catch (std::ifstream::failure&) {}
             return 0;
         }
     }
