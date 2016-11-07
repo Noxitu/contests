@@ -1,11 +1,16 @@
 /*********************************
-*****     Common v2.0.5      *****
+*****     Common v2.0.6      *****
 *********************************/
 #include <bits/stdc++.h>
 
 void test();
 
 namespace common {
+
+    template<typename T>
+    T gcd(T const &a, T const &b) { return b == 0 ? a : gcd(b, a%b); }
+
+
     namespace io {
         template<typename T>
         inline std::ostream& operator<< (std::ostream& out, const std::vector<T>& data) {
@@ -42,19 +47,27 @@ namespace common {
             T& at (size_t n) { return std::vector<T>::at(n-1); }
             const T& at (size_t n) const { return std::vector<T>::at(n-1); }
     };
-    
-    template<typename T>
-    T gcd(T const &a, T const &b) { return b == 0 ? a : gcd(b, a%b); }
+
 
     namespace functional {    
-        template<class Object, typename Type, Type Object::* Field, typename Comparator=std::less<Type>>
-        struct compare_field
+        template<typename Type, typename C> struct GetComparator { using Comparator = C; };
+        template<typename Type> struct GetComparator<Type, void> { using Comparator = std::less<Type>; };
+
+        template<typename Object, typename Type, Type Object::* default_field, typename Comparator = void>
+        struct CompareField
         {
-            constexpr bool operator()(Object const &lhs, Object const &rhs)
+            const Type Object::* field;
+
+            CompareField() : field(default_field) {}
+            CompareField(Type Object::* field) : field(field) {}
+            constexpr bool operator()(Object const &lhs, Object const &rhs) const
             {
-                return Comparator()(lhs.*Field, rhs.*Field);
+                return typename GetComparator<Type, Comparator>::Comparator()(lhs.*field, rhs.*field);
             }
         };
+
+        template<typename Comparator = void, typename Object, typename Type>
+        const CompareField<Object, Type, nullptr, Comparator> compare_field(Type Object::* field) { return {field}; }
 
         template<typename iterator_type>
         class Iterable
@@ -75,6 +88,7 @@ namespace common {
         template<typename Collection>
         auto reversed(Collection &collection) -> Iterable<decltype(collection.rbegin())> { return iterable(collection.rbegin(), collection.rend()); }
     }
+
     
     namespace operators {
         struct base_operator {};
@@ -90,36 +104,68 @@ namespace common {
         struct : public base_operator { template <typename T> void operator()(T &x, T y) const { x = min(x, y); } } const set_if_less;
     }
     
+
     namespace main {
-        int main_one() {
-            std::ios_base::sync_with_stdio(false);
-            std::cin.tie(NULL);
-            test();
-            return 0;
+        int _default(int const, char const * const[])
+        {
+            std::cout << "Undefined common::main app!" << std::endl;
+            return 1;
         }
 
-        int main_many() {
-            std::ios_base::sync_with_stdio(false);
-            std::cin.tie(NULL);
-            int T;
-            std::cin >> T;
-            while( T --> 0 )
+        int (*_app)(int const, char const * const[]);
+
+        class one
+        {
+            static int main(int const argc, char const * const argv[])
+            {
+                std::ios_base::sync_with_stdio(false);
+                std::cin.tie(NULL);
                 test();
-            return 0;
-        }
-        
-        int main_all() {
-            std::ios_base::sync_with_stdio(false);
-            std::cin.tie(NULL);
-            std::cin.exceptions(std::ifstream::eofbit);
-            try {
-                while(std::cin)
-                    test();
+                return 0;
             }
-            catch (std::ifstream::failure&) {}
-            return 0;
-        }
+        public:
+            one() { _app = main; }
+        };
+
+        class many
+        {
+            static int main(int const argc, char const * const argv[])
+            {
+                std::ios_base::sync_with_stdio(false);
+                std::cin.tie(NULL);
+                int T;
+                std::cin >> T;
+                while( T --> 0 )
+                    test();
+                return 0;
+            }
+        public:
+            many() { _app = main; }
+        };
+
+        class all
+        {
+            static int main(int const argc, char const * const argv[])
+            {
+                std::ios_base::sync_with_stdio(false);
+                std::cin.tie(NULL);
+                std::cin.exceptions(std::ifstream::eofbit);
+                try {
+                    while(std::cin)
+                        test();
+                }
+                catch (std::ifstream::failure&) {}
+                return 0;
+            }
+        public:
+            all() { _app = main; }
+        };
     }
+}
+
+int main(int const argc, char const * const argv[])
+{
+    return common::main::_app(argc, argv);
 }
 
 using namespace std;
@@ -127,7 +173,6 @@ using namespace common;
 using namespace common::io;
 using namespace common::functional;
 using namespace common::operators;
-using namespace common::main;
 
 // end of #include <common.hpp>
 //====================================================
