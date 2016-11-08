@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 /**********************************
- *  Common :: union_find  v1.0.0  *
+ *  Common :: union_find  v1.0.1  *
  **********************************/
 
 namespace common
@@ -142,7 +142,7 @@ namespace common
                 return root;
             }
 
-            void union_with(Argument a, Argument b)
+            void join(Argument a, Argument b)
             {
                 Argument a_root = find(a);
                 Argument b_root = find(b);
