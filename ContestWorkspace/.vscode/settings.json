@@ -1,0 +1,17 @@
+{
+    "cmake.configureOnOpen": true,
+
+    "cmake.configureSettings": {
+        "CONTESTWORKSPACE_CODE_PATH": "../potyczki algorytmiczne/2019",
+        "CONTESTWORKSPACE_TEST_PATH": "../potyczki algorytmiczne/2019/tests",
+    },
+
+    "catch2TestExplorer.executables": {
+        "name": "${filename}",
+        "description": "${filename}",
+        "pattern": "build/bin/*",
+        "cwd": "${absDirpath}",
+    },
+    
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+}
