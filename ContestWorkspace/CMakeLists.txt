@@ -11,7 +11,8 @@ project(ContestWorkspace LANGUAGES CXX)
 
 add_library(TestMain STATIC "util/test_main.cpp" 
                             "util/test_discovery.cpp"
-                            "util/compare.cpp")
+                            "util/compare.cpp"
+                            "util/limits.cpp")
 
 set_property(TARGET TestMain PROPERTY CXX_STANDARD 14)
 target_link_libraries(TestMain PRIVATE -lstdc++fs)

@@ -73,6 +73,23 @@ struct TestResult
     int duration;
 };
 
+class swap_rdbuf
+{
+private:
+    std::ios &m_stream;
+    std::streambuf *m_rdbuf;
+public:
+    swap_rdbuf(std::ios &stream, std::ios &other) : m_stream(stream)
+    {
+        m_rdbuf = stream.rdbuf(other.rdbuf());
+    }
+
+    ~swap_rdbuf()
+    {
+        m_stream.rdbuf(m_rdbuf);
+    }
+};
+
 TestResult run_test(const std::string &test_group_name, const Test &test)
 {
     const std::string full_test_name = test_group_name + "." + test.name;
@@ -81,17 +98,41 @@ TestResult run_test(const std::string &test_group_name, const Test &test)
     std::stringstream sout;
     std::ifstream fin(test.input_path);
 
-    auto orig_cin_rdbuf = std::cin.rdbuf(fin.rdbuf());
-    auto orig_cout_rdbuf = std::cout.rdbuf(sout.rdbuf());
-
     const auto time_before = std::chrono::high_resolution_clock::now();
-    bool result = ::contestworkspace_test_main() == 0;
+    bool result = [&]()
+    {
+        try
+        {
+            swap_rdbuf swap_cin(std::cin, fin);
+            swap_rdbuf swap_cout(std::cout, sout);
+
+            return ::contestworkspace_test_main() == 0;
+        }
+        catch(const std::bad_alloc&)
+        {
+            std::cout << "Exceeded Memory Limit!" << std::endl;
+            return false;
+        }
+        catch(const std::exception &ex)
+        {
+            std::cout << "Exception " << typeid(ex).name() << ": " << ex.what() << std::endl;
+            return false;
+        }
+        catch(...)
+        {
+            std::cout << "Exception ..." << std::endl;
+            return false;
+        }
+    }();
     const auto time_after = std::chrono::high_resolution_clock::now();
 
-    std::cin.rdbuf(orig_cin_rdbuf);
-    std::cout.rdbuf(orig_cout_rdbuf);
-
     const int duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_after-time_before).count();
+
+    if (duration == 0)
+    {
+        const int precise_duration = std::chrono::duration_cast<std::chrono::microseconds>(time_after-time_before).count();
+        std::cout << "Precise duration = " << precise_duration << " μs" << std::endl;
+    }
 
     if (result && test.output_path)
     {
