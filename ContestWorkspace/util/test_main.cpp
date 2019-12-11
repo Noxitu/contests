@@ -67,7 +67,13 @@ void print_test_list()
     }
 }
 
-void run_test(const std::string &test_group_name, const Test &test)
+struct TestResult
+{
+    bool result;
+    int duration;
+};
+
+TestResult run_test(const std::string &test_group_name, const Test &test)
 {
     const std::string full_test_name = test_group_name + "." + test.name;
     std::cout << "[ RUN      ] " << full_test_name << std::endl;
@@ -115,6 +121,8 @@ void run_test(const std::string &test_group_name, const Test &test)
         std::cout << "[  FAILED  ] ";
 
     std::cout << full_test_name << " (" << duration << " ms)" << std::endl;
+
+    return {result, duration};
 }
 
 int main(const int argc, const char *argv[])
@@ -140,10 +148,16 @@ int main(const int argc, const char *argv[])
         return EXIT_SUCCESS;
     }
 
-    if (has_arg("--gtest_color=no", args))
+    if (has_arg("--gtest_color=no", args) || has_arg("--test", args))
     {
         auto tests = discover_tests(contest_workspace::tests_path);
         auto filter = gtest_filter(args);
+
+        int max_duration = 0;
+        double total_duration = 0.0;
+        int total = 0;
+        int oks = 0;
+        int fails = 0;
 
         for (auto &test_group : tests)
             for (auto &test : test_group.tests)
@@ -151,8 +165,26 @@ int main(const int argc, const char *argv[])
                 if (!filter(test_group.name, test.name))
                     continue;
 
-                run_test(test_group.name, test);
+                const auto result = run_test(test_group.name, test);
+
+                total += 1;
+                if (result.result)
+                    oks += 1;
+                else
+                    fails += 1;
+
+                total_duration += result.duration / 1000.;
+                max_duration = std::max(max_duration, result.duration);
             }
+
+        if (has_arg("--test", args))
+        {
+            std::cout << "Finished running " << total << " tests." << std::endl;
+            std::cout << "  " << oks << " tests passed." << std::endl;
+            std::cout << "  " << fails << " tests failed." << std::endl;
+            std::cout << "  Longest test took " << max_duration << " ms." << std::endl;
+            std::cout << "  Running all took " << int(total_duration+.5) << " seconds." << std::endl;
+        }
 
         return EXIT_SUCCESS;
     }
