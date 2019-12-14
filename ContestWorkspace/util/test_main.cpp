@@ -15,6 +15,8 @@
 
 int contestworkspace_test_main();
 bool compare(std::istream &output, std::istream &truth);
+std::unique_ptr<std::streambuf> online_compare(std::shared_ptr<std::istream> truth, std::ostream &output);
+std::shared_ptr<void> time_limit_guard();
 
 std::function<bool(const std::string&, const std::string&)> gtest_filter(const std::vector<std::string> &args)
 {
@@ -84,6 +86,11 @@ public:
         m_rdbuf = stream.rdbuf(other.rdbuf());
     }
 
+    swap_rdbuf(std::ios &stream, std::streambuf *other) : m_stream(stream)
+    {
+        m_rdbuf = stream.rdbuf(other);
+    }
+
     ~swap_rdbuf()
     {
         m_stream.rdbuf(m_rdbuf);
@@ -99,31 +106,47 @@ TestResult run_test(const std::string &test_group_name, const Test &test)
     std::ifstream fin(test.input_path);
 
     const auto time_before = std::chrono::high_resolution_clock::now();
+
     bool result = [&]()
     {
         try
         {
-            swap_rdbuf swap_cin(std::cin, fin);
-            swap_rdbuf swap_cout(std::cout, sout);
+            std::unique_ptr<std::streambuf> debug_streambuf;
 
+            swap_rdbuf swap_cin(std::cin, fin);
+            swap_rdbuf swap_cout = [&]()
+            {
+#ifndef NDEBUG
+                if (test.output_path)
+                {
+                    debug_streambuf = online_compare(std::make_shared<std::ifstream>(*test.output_path),
+                                                     sout);
+                    return swap_rdbuf(std::cout, debug_streambuf.get());
+                }
+#endif
+                return swap_rdbuf(std::cout, sout);
+            }();
+
+            auto time_guard = time_limit_guard();
             return ::contestworkspace_test_main() == 0;
         }
         catch(const std::bad_alloc&)
         {
-            std::cout << "Exceeded Memory Limit!" << std::endl;
+            std::cout << "[CONTEST_WORKSPACE] " << "Exceeded Memory Limit!" << std::endl;
             return false;
         }
         catch(const std::exception &ex)
         {
-            std::cout << "Exception " << typeid(ex).name() << ": " << ex.what() << std::endl;
+            std::cout << "[CONTEST_WORKSPACE] " << "Exception " << typeid(ex).name() << ": " << ex.what() << std::endl;
             return false;
         }
         catch(...)
         {
-            std::cout << "Exception ..." << std::endl;
+            std::cout << "[CONTEST_WORKSPACE] " << "Exception ..." << std::endl;
             return false;
         }
     }();
+
     const auto time_after = std::chrono::high_resolution_clock::now();
 
     const int duration = std::chrono::duration_cast<std::chrono::milliseconds>(time_after-time_before).count();

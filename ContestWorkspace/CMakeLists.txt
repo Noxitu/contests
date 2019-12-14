@@ -11,18 +11,22 @@ set(CMAKE_CXX_FLAGS_SANITIZED "-O0 -fsanitize=address" CACHE STRING "")
 
 project(ContestWorkspace LANGUAGES CXX)
 
+find_package(Threads REQUIRED)
+
 add_library(TestMain STATIC "util/test_main.cpp" 
                             "util/test_discovery.cpp"
                             "util/compare.cpp"
                             "util/limits.cpp")
 
 set_property(TARGET TestMain PROPERTY CXX_STANDARD 14)
-target_link_libraries(TestMain PRIVATE -lstdc++fs)
+target_link_libraries(TestMain PRIVATE -lstdc++fs Threads::Threads)
 
 file(GLOB files "${CONTESTWORKSPACE_CODE_PATH}/*.cpp")
 foreach(file_path ${files})
     get_filename_component(task_name ${file_path} NAME_WE)
-    get_filename_component(task_test_path "${CONTESTWORKSPACE_TEST_PATH}/${task_name}" ABSOLUTE)
+    string(REPLACE "--" ";" task_name_components ${task_name})
+    list(GET task_name_components 0 task_name_slug)
+    get_filename_component(task_test_path "${CONTESTWORKSPACE_TEST_PATH}/${task_name_slug}" ABSOLUTE)
 
     add_executable(${task_name} ${file_path} "util/resources.cpp")
     target_compile_definitions(${task_name} PRIVATE CONTEST_WORKSPACE 
