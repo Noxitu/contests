@@ -69,6 +69,9 @@ std::shared_ptr<void> time_limit_guard()
 
 void limit_cpu(float sec)
 {
-    guard_ptr->start(Duration(sec));
-    guard_ptr.reset();
+    if (guard_ptr)
+    {
+        guard_ptr->start(Duration(sec));
+        guard_ptr.reset();
+    }
 }

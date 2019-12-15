@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_DEBUG "-g" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_PROFILE "-O2 -DNDEBUG -pg" CACHE STRING "")
-set(CMAKE_CXX_FLAGS_SANITIZED "-O0 -fsanitize=address" CACHE STRING "")
+set(CMAKE_CXX_FLAGS_SANITIZED "-O0 -fsanitize=address -fsanitize=undefined" CACHE STRING "")
 
 project(ContestWorkspace LANGUAGES CXX)
 
