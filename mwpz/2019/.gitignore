@@ -5,6 +5,8 @@ build/
 !example*.out
 !ggrz*.in
 !ggrz*.out
+!/tests/*.in
+!/tests/*.out
 
 # Don't look for non-root tests
 /tests/*/*/
