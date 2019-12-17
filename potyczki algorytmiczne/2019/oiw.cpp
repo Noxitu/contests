@@ -5,8 +5,6 @@
 #define TIME_LIMIT 5.0
 // #define ADDITIONAL_LOGS // enable blocks used only for cerr
 
-#define VARIANT 1
-
 using namespace std;
 
 struct Point {
@@ -21,7 +19,6 @@ struct CompareByY
     }
 };
 
-#if VARIANT == 1
 struct CompareByYX
 { 
     bool operator() (const Point &lhs, const Point &rhs) const
@@ -41,19 +38,13 @@ struct CompareByXY
         return lhs.x < rhs.x;
     }
 };
-#endif
 
 class Structure
 {
 private:
     set<Point, CompareByY> m_stack;
-#if VARIANT == 1
     set<Point, CompareByYX> m_rows;
     set<Point, CompareByXY> m_cols;
-#else
-    map<int, set<int>> m_rows;
-    map<int, set<int>> m_cols;
-#endif
 
 public:
     Structure(int width, int height)
@@ -61,10 +52,8 @@ public:
         m_stack.insert({-1, -1});
         m_stack.insert({width, 0});
         m_stack.insert({width+1, height});
-#if VARIANT == 1
         m_rows.insert({width, height});
         m_cols.insert({width, height});
-#endif
     }
 
     bool is(int x, int y) const
@@ -80,7 +69,6 @@ public:
 
     void expand(int x, int y)
     {
-        // cerr << "expand(" << x << ", " << y << ");" << endl;
         assert(is(x, y));
         const auto end = m_stack.upper_bound({0, y});
         auto begin = end;
@@ -102,33 +90,23 @@ public:
 
     void add(int x, int y)
     {
-        // cerr << "add(" << x << ", " << y << ");" << endl;
-#if VARIANT == 1
         m_rows.insert({x, y});
         m_cols.insert({x, y});
-#else
-        m_rows[y].insert(x);
-        m_cols[x].insert(y);
-#endif
     }
 
     void search(int x, int y, queue<Point> &points)
     {
-        // cerr << "search(" << x << ", " << y << ");" << endl;
         const auto next = m_stack.upper_bound({0, y});
         const auto prev = ::prev(next);
 
         assert(next->y == y+1);
 
-        // cerr << "Interesting range column = (" << x-1 << ", " << prev->y+1 << ".." << y+1 << ")" << endl;
-        // cerr << "Interesting range row = (" << x-1 << ".." << next->x-1 << ", " << y+1 << ")" << endl;
 
         {
             const int the_x = x-1;
             const int first_y = prev->y+1;
             const int last_y = y+1;
 
-#if VARIANT == 1
             auto it = m_cols.lower_bound({the_x, first_y});
 
             while(it->x == the_x && it->y <= last_y)
@@ -139,27 +117,13 @@ public:
                 m_rows.erase(*it);
                 it = m_cols.erase(it);
             }
-#else
-            auto &col = m_cols[the_x];
-            auto it = col.lower_bound(first_y);
-
-            while(it != col.end() && *it <= last_y)
-            {
-
-                assert(is(the_x, *it));
-                points.push({the_x, *it});
-
-                m_rows[*it].erase(the_x);
-                it = col.erase(it);
-            }
-#endif
         }
 
         {
             const int first_x = x-1;
             const int last_x = next->x-1;
             const int the_y = y+1;
-#if VARIANT == 1
+
             auto it = m_rows.lower_bound({first_x, the_y});
 
             while(it->x <= last_x && it->y == the_y)
@@ -170,41 +134,9 @@ public:
                 m_cols.erase(*it);
                 it = m_rows.erase(it);
             }
-#else
-            auto &row = m_rows[the_y];
-            auto it = row.lower_bound(first_x);
-
-            while(it != row.end() && *it <= last_x)
-            {
-                assert(is(*it, the_y));
-                points.push({*it, the_y});
-
-                m_cols[*it].erase(the_y);
-                it = row.erase(it);
-            }
-#endif
         }
     }
 };
-
-#ifdef ADDITIONAL_LOGS
-void draw(const Structure &data, int width, int height)
-{
-    const string border = "+" + string(width, '-') + "+";
-
-    // cerr << border << endl;
-    for (int y = 0; y < height; ++y)
-    {
-        // cerr << "|";
-        for (int x = 0; x < width; ++x)
-        {
-            // cerr << (data.is(x, y) ? '#' : ' ');
-        }
-        // cerr << "|\n";
-    }
-    // cerr << border << endl;
-}
-#endif
 
 void test()
 {        
@@ -272,17 +204,6 @@ void test()
 
 int main()
 {
-#ifdef CONTEST_WORKSPACE
-    #ifdef MEMORY_LIMIT
-        void limit_ram(float);
-        limit_ram(MEMORY_LIMIT);
-    #endif
-    #ifdef TIME_LIMIT
-        void limit_cpu(float);
-        limit_cpu(TIME_LIMIT);
-    #endif
-#endif
-
 #if !defined(CONTEST_WORKSPACE)
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);

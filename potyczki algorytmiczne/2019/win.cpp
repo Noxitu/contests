@@ -2,6 +2,10 @@
 // #define MULTIPLE_TESTS
 // #define ENDLESS_TESTS
 
+#ifdef CONTEST_WORKSPACE
+    #define ENDLESS_TESTS
+#endif
+
 using namespace std;
 
 

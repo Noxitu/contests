@@ -190,11 +190,6 @@ void test()
 
 int main()
 {
-#if defined(CONTEST_WORKSPACE) && defined(MEMORY_LIMIT)
-    void limit_ram(float);
-    limit_ram(MEMORY_LIMIT);
-#endif
-
 #if !defined(CONTEST_WORKSPACE)
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);

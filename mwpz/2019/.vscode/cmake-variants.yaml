@@ -5,14 +5,17 @@ buildType:
       short: Release
       long: Optimized binary for timing
       buildType: Release
+
     debug:
       short: Debug
       long: Unoptimized binary with debugging symbols
       buildType: Debug
+
     profile:
       short: Profile
       long: Optimized binary generating profiler data
       buildType: Profile
+
     sanitize:
       short: Sanitized
       long: Optimized binary with sanitizer checks
