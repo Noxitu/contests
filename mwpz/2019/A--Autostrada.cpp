@@ -7,6 +7,8 @@
 
 using namespace std;
 
+/******************************************************************************/
+
 struct LimitChange {
     int at, speed_limit;
 };
