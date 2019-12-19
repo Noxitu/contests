@@ -10,3 +10,7 @@ build/
 
 # Don't look for non-root tests
 /tests/*/*/
+
+# Documents describing solutions
+/solutions/
+!/Solutions.pdf
