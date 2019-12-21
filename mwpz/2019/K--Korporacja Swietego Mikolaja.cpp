@@ -28,7 +28,7 @@ int compute(int x)
             return;
 
         const int param = x/k;
-        const int value = compute(x/k);
+        const int value = compute(param);
         const int low = x/(param+1)+1;
         const int high = k;
 
@@ -68,7 +68,7 @@ int solve(int l, int r)
             return;
 
         const int param = r/k;
-        const int value = compute(r/k);
+        const int value = compute(param);
         const int low = max(l, r/(param+1)+1);
 
         // assert(x/(low-1) != param);  // not true anymore due to low = max(...)
