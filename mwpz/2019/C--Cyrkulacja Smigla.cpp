@@ -104,18 +104,10 @@ void test()
         sorted_answers.push_back(move(vec));
     }
 
-    for (int i = n - 1; i >= 0; --i)
+    sort(sorted_answers.begin(), sorted_answers.end(), [] (auto&lhs, auto&rhs) 
     {
-        auto key = [i](auto &vec)
-        {
-            return vec[i];
-        };
-
-        stable_sort(sorted_answers.begin(), sorted_answers.end(), [&](auto &lhs, auto &rhs)
-        {
-            return key(lhs) < key(rhs);
-        });
-    }
+        return lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    });
 
     vector<int> common_prefix = {0};
 
