@@ -1,0 +1,15 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_MODULE_PATH": "${workspaceFolder}/../../ContestWorkspace"
+    },
+    "catch2TestExplorer.executables": {
+        "name": "${filename}",
+        "description": "All tests for solution \"${filename}\"",
+        "pattern": "build/bin/*",
+        "cwd": "${absDirpath}",
+    },
+    "files.watcherExclude": {
+        "**/tests/*/*": true,
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+}

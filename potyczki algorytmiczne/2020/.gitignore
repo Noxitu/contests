@@ -1,0 +1,10 @@
+build/
+
+# Allow example and own tests
+!example*.in
+!example*.out
+!ggrz*.in
+!ggrz*.out
+
+# Don't look for non-root tests
+/tests/*/*/

@@ -98,7 +98,7 @@ namespace contest_workspace
         if (duration == 0)
         {
             const int precise_duration = std::chrono::duration_cast<std::chrono::microseconds>(time_after-time_before).count();
-            std::cout << "Precise duration = " << precise_duration << " μs" << std::endl;
+            std::cout << "[CONTEST_WORKSPACE] " << "Precise duration = " << precise_duration << " μs" << std::endl;
         }
 
         if (result && test.output_path)

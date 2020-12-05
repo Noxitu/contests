@@ -1,0 +1,13 @@
+namespace contest_workspace 
+{
+    extern const char * const test_path;
+    extern const float memory_limit;
+    extern const float time_limit;
+}
+
+namespace contest_workspace 
+{
+    const char * const test_path = "${TEST_PATH}";
+    const float memory_limit = ${MEMORY_LIMIT};
+    const float time_limit = ${TIME_LIMIT};
+}
