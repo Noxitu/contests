@@ -50,8 +50,8 @@ namespace contest_workspace
 
         TimeGuard(Duration time_limit)
         {
-            m_thread = std::thread([=](){ thread_func(time_limit); });
             std::unique_lock<std::mutex> lock(m_mutex);
+            m_thread = std::thread([=](){ thread_func(time_limit); });
             m_cv.wait(lock);
         }
 

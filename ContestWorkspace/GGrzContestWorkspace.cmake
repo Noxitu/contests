@@ -14,6 +14,11 @@ set(CURRENT_MODULE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/Main" "Main")
 
 function (ggrz_setup)
+    cmake_parse_arguments("GGRZ_SETUP" "" "STANDARD_VERSION" "" ${ARGN})
+    if (NOT DEFINED GGRZ_SETUP_STANDARD_VERSION)
+        set(GGRZ_SETUP_STANDARD_VERSION 14)
+    endif()
+
     file(GLOB files "*.cpp")
     foreach(file_path ${files})
         # Extract actual task name
@@ -55,7 +60,7 @@ function (ggrz_setup)
         set_target_properties(${task_name} 
             PROPERTIES 
                 RUNTIME_OUTPUT_DIRECTORY "bin"
-                CXX_STANDARD 14
+                CXX_STANDARD ${GGRZ_SETUP_STANDARD_VERSION}
         )
 
         target_link_libraries(${task_name} PRIVATE Main)

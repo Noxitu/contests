@@ -4,4 +4,4 @@ include(GGrzContestWorkspace)
 
 project(ContestWorkspace LANGUAGES CXX)
 
-ggrz_setup()
+ggrz_setup(STANDARD_VERSION 17)
